@@ -12,10 +12,16 @@ module Mumblebot
         config.host = address()
         config.port = port()
         config.username = username()
+
+        config.cert_dir = cert_dir()
+        config.country_code = country_code()
+        config.organization = organization()
+        config.organization_unit = organization_unit()
       end
 
+
       @client.on_connected do
-        on_connected(@client, nil)
+        on_connected(@client)
       end
 
       @client.on_text_message do |message|
@@ -75,6 +81,22 @@ module Mumblebot
 
     def port
       @config[:server][:port] || 64738
+    end
+
+    def cert_dir
+      @config[:server][:cert_dir] || './certs'
+    end
+
+    def country_code
+      @config[:server][:country_code] || 'CA'
+    end
+
+    def organization
+      @config[:server][:org] || 'mumblebot'
+    end
+
+    def organization_unit
+      @config[:server][:org_unit] || 'ruby'
     end
   end
 end
