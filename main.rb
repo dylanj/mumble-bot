@@ -3,8 +3,8 @@ require 'bundler/setup'
 
 Bundler.require
 
-require './fishbot/fishbot'
-require './fishbot/url2img'
-require './fishbot/autoafk'
+require './mumblebot/mumblebot'
+require './mumblebot/url2img'
+require './mumblebot/autoafk'
 
-Fishbot.connect
+Mumblebot.connect

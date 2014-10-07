@@ -6,7 +6,7 @@ require 'uri'
 
 Bundler.require
 
-module Fishbot
+module Mumblebot
   def self.connect
     cli = Mumble::Client.new('zqz.ca') do |config|
       config.username = 'O'

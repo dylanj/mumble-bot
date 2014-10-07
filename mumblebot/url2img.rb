@@ -1,7 +1,7 @@
 require 'RMagick'
 require 'uri'
 
-class Fishbot::Url2Img
+class Mumblebot::Url2Img
   IMAGE_SIZE = 200
 
   class Rekwezt
@@ -16,7 +16,7 @@ class Fishbot::Url2Img
   end
 
   def self.listen(cli, message)
-    url2img = ::Fishbot::Url2Img.new
+    url2img = ::Mumblebot::Url2Img.new
     url2img.handle(cli, message)
   end
 
