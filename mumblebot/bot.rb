@@ -35,17 +35,16 @@ module Mumblebot
         end
       end
 
-      # try *args, args[0], args[1]??
       events.each do |event|
-        self.class.send(:define_method, event) do |client, message|
-          call_plugin_handler(event, client, message)
+        self.class.send(:define_method, event) do |*args|
+          call_plugin_handler(event, *args)
         end
       end
     end
 
-    def call_plugin_handler(handler, client, message)
+    def call_plugin_handler(handler, *args)
       @plugins[handler].each do |plugin|
-        plugin.public_send(handler, client, message)
+        plugin.public_send(handler, *args)
       end
     end
 
