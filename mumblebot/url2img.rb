@@ -1,28 +1,27 @@
 require 'RMagick'
 require 'uri'
-
-class Mumblebot::Url2Img
-  IMAGE_SIZE = 200
+module Mumblebot
+class Url2Img
+  DEFAULT_WIDTH = 200
 
   class Rekwezt
     include HTTParty
     default_timeout 4 # 4 seconds
   end
 
-  def handle(cli, message)
-    @cli = cli
-    @message = message
-    urls_in_message().each { |u| handle_url(u) }
+  def initialize(options)
+    @width = options[:width] || DEFAULT_WIDTH
   end
 
-  def self.listen(cli, message)
-    url2img = ::Mumblebot::Url2Img.new
-    url2img.handle(cli, message)
+  def on_text_message(client, message)
+    urls_in_message(message).each do |url|
+      handle_url(client, target_id(message), url)
+    end
   end
 
   private
 
-  def handle_url(url)
+  def handle_url(client, target, url)
     begin
       response = Rekwezt.get(url)
 
@@ -36,21 +35,21 @@ class Mumblebot::Url2Img
       channel_message = "Failed to load image"
     end
 
-    @cli.text_channel(target_id(), channel_message) if channel_message
+    client.text_channel(target, channel_message) if channel_message
   end
 
   def create_thumbnail(response)
     image = Magick::Image.from_blob(response.body).first
-    resize_by_width(image, IMAGE_SIZE)
+    resize_by_width(image, @width)
   end
 
-  def target_id()
-    ids = @message[:channel_id] || @message[:tree_id]
+  def target_id(message)
+    ids = message[:channel_id] || message[:tree_id]
     ids.first
   end
 
-  def urls_in_message()
-    URI.extract(@message[:message]).uniq
+  def urls_in_message(message)
+    URI.extract(message[:message]).uniq
   end
 
   def supported_response?(response)
@@ -75,5 +74,6 @@ class Mumblebot::Url2Img
 
     image.scale(new_width, new_height)
   end
+end
 end
 

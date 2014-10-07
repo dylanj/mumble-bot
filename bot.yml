@@ -1,0 +1,10 @@
+bot:
+  server:
+    address: 'zqz.ca'
+    username: 'fishbot'
+  plugins:
+    Url2Img:
+      width: 200
+    AutoAFK:
+      channel: 'AFK'
+      idletime: 10
