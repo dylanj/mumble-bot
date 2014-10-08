@@ -1,15 +1,10 @@
 module Mumblebot
   class Bot
-    def events
-      events = [:on_connected, :on_text_message]
-    end
-
     def initialize(config)
-      @plugins = {}
-      @client = nil
+      @callbacks = {}
       @config = config
 
-      load_plugins(config)
+      load_plugins()
 
       @client = Mumble::Client.new(nil) do |config|
         config.host = address()
@@ -22,41 +17,7 @@ module Mumblebot
         config.organization_unit = organization_unit()
       end
 
-      events.each do |event|
-        @client.public_send(event) do |*args|
-          public_send(event, @client, *args)
-        end
-      end
-    end
-
-    def load_plugins(config)
-      plugin_configs = config[:plugins]
-      plugin_configs.each do |name, options|
-        plugin = Util.constantize(name).new(options)
-
-        events.each do |event|
-          add_plugin_handler(plugin, event)
-        end
-      end
-
-      events.each do |event|
-        self.class.send(:define_method, event) do |*args|
-          call_plugin_handler(event, *args)
-        end
-      end
-    end
-
-    def call_plugin_handler(handler, *args)
-      @plugins[handler].each do |plugin|
-        plugin.public_send(handler, *args)
-      end
-    end
-
-    def add_plugin_handler(plugin, handler)
-      if plugin.respond_to?(handler)
-        @plugins[handler] ||= []
-        @plugins[handler] << plugin
-      end
+      generate_callbacks()
     end
 
     def connect
@@ -68,6 +29,46 @@ module Mumblebot
     end
 
     private
+
+    def events
+      Mumble::Messages.all_types.map { |event| "on_#{event}" }
+    end
+
+    def generate_callbacks
+      events.each do |event|
+        @client.public_send(event) do |*args|
+          call_plugin_handler(event, *args)
+        end
+      end
+    end
+
+    def load_plugins
+      plugin_configs = @config[:plugins]
+      plugin_configs.each do |name, options|
+
+        events.each do |event|
+          add_plugin_handler(event, name, options)
+        end
+      end
+    end
+
+    def add_plugin_handler(event, plugin_name, options)
+      plugin = Util.constantize(plugin_name).new(options)
+
+      if plugin.respond_to?(event)
+        @callbacks[event] ||= []
+        @callbacks[event] << plugin
+      end
+    end
+
+    def call_plugin_handler(event, *args)
+      plugins = @callbacks[event]
+      return unless plugins
+
+      plugins.each do |plugin|
+        plugin.public_send(event, @client, *args)
+      end
+    end
 
     def address
       @config[:server][:address] || raise("specify an address to connect to in bot.yml")
