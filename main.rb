@@ -4,7 +4,6 @@ require 'bundler/setup'
 Bundler.require
 require './mumblebot/util'
 
-#plugins
 require './mumblebot/url2img'
 require './mumblebot/autoafk'
 

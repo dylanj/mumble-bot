@@ -1,5 +1,8 @@
 module Mumblebot
   class Bot
+    def events
+      events = [:on_connected, :on_text_message]
+    end
 
     def initialize(config)
       @plugins = {}
@@ -19,19 +22,14 @@ module Mumblebot
         config.organization_unit = organization_unit()
       end
 
-
-      @client.on_connected do
-        on_connected(@client)
-      end
-
-      @client.on_text_message do |message|
-        on_text_message(@client, message)
+      events.each do |event|
+        @client.public_send(event) do |*args|
+          public_send(event, @client, *args)
+        end
       end
     end
 
     def load_plugins(config)
-      events = [:on_connected, :on_disconnect, :on_text_message]
-
       plugin_configs = config[:plugins]
       plugin_configs.each do |name, options|
         plugin = Util.constantize(name).new(options)
