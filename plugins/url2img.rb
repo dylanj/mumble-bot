@@ -1,7 +1,6 @@
 require 'RMagick'
 require 'uri'
-module Mumblebot
-class Url2Img
+class Url2Img < Mumblebot::Plugin
   DEFAULT_WIDTH = 200
 
   class Rekwezt
@@ -9,8 +8,8 @@ class Url2Img
     default_timeout 4 # 4 seconds
   end
 
-  def initialize(options)
-    @width = options[:width] || DEFAULT_WIDTH
+  def setup
+    @width = @options[:width] || DEFAULT_WIDTH
   end
 
   def on_text_message(client, message)
@@ -74,6 +73,5 @@ class Url2Img
 
     image.scale(new_width, new_height)
   end
-end
 end
 

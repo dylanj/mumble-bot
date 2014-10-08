@@ -8,3 +8,7 @@ bot:
     AutoAFK:
       channel: 'AFK'
       idletime: 10
+    Debug:
+      hi: lol
+    IDontExist:
+      yolo: "rekt"

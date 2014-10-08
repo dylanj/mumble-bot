@@ -1,7 +1,7 @@
 module Mumblebot
   module Util
     def self.constantize name
-      Object.const_get("Mumblebot::#{name}", true)
+      Object.const_get(name, true)
     end
 
     def self.symbolize_keys hsh

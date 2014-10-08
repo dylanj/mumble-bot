@@ -4,8 +4,6 @@ module Mumblebot
       @callbacks = {}
       @config = config
 
-      load_plugins()
-
       @client = Mumble::Client.new(nil) do |config|
         config.host = address()
         config.port = port()
@@ -17,6 +15,7 @@ module Mumblebot
         config.organization_unit = organization_unit()
       end
 
+      load_plugins()
       generate_callbacks()
     end
 
@@ -45,16 +44,25 @@ module Mumblebot
     def load_plugins
       plugin_configs = @config[:plugins]
       plugin_configs.each do |name, options|
+        begin
+          require file_name = "plugins/#{name.downcase}"
 
-        events.each do |event|
-          add_plugin_handler(event, name, options)
+          plugin = Util.constantize(name).new(@client, options)
+
+          events.each do |event|
+            add_plugin_handler(event, plugin)
+          end
+
+          puts "Loaded plugin \"#{name}\""
+        rescue LoadError => exception
+          puts "Failed to require file \"#{file_name}\" for plugin \"#{name}\": #{exception.message}"
+        rescue NameError => exception
+          puts "Failed to load plugin \"#{name}\": #{exception.message}"
         end
       end
     end
 
-    def add_plugin_handler(event, plugin_name, options)
-      plugin = Util.constantize(plugin_name).new(options)
-
+    def add_plugin_handler(event, plugin)
       if plugin.respond_to?(event)
         @callbacks[event] ||= []
         @callbacks[event] << plugin
