@@ -1,9 +1,8 @@
-$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../mumblebot")
-
 require 'rubygems'
 require 'bundler/setup'
 
 Bundler.require
+$LOAD_PATH.unshift(File.dirname(__FILE__))
 
 require 'mumblebot/util'
 require 'mumblebot/bot'
